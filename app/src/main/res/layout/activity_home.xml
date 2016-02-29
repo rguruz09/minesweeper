@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="30dip"
+    tools:context="com.sjsu.raghu.minesweeper.HomeActivity">
+
+    <Button
+
+        android:layout_marginTop="150dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/resumebtnText"
+        android:id="@+id/btnResume"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_below="@+id/btnResume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/startbtnText"
+        android:id="@+id/btnStart"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_below="@+id/btnStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rulesbtnText"
+        android:id="@+id/btnRules" />
+
+
+    <Button
+        android:layout_below="@+id/btnRules"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/exitbtnExit"
+        android:id="@+id/btnExit" />
+
+</RelativeLayout>
