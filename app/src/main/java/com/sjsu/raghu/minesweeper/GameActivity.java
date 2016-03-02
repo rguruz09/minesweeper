@@ -1,13 +1,18 @@
 package com.sjsu.raghu.minesweeper;
 
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
@@ -22,8 +27,8 @@ public class GameActivity extends AppCompatActivity {
     int iTotalFlags;
     int iCorrectFlags;
     //temp
-    int tileWH = 10;
-    int tilePadding = 10;
+    int tileWH = 9;
+    int tilePadding = 9;
 
     //Array of Mine Cells
     Cell[][] cells;
@@ -32,21 +37,130 @@ public class GameActivity extends AppCompatActivity {
     private static final String TAG = "MINE ";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-        mineField = (TableLayout)findViewById(R.id.MineField);
-        prepareMinesTable();
-        setMines();
-        showGame();
+    protected void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+
+
+
+        if(getResources().getConfiguration().orientation == 1){
+            // 12*8 cells with 30 mines
+            iTotalRows = 12;
+            iTotalCols = 8;
+            iTotalMines = 20;
+            setContentView(R.layout.activity_game);
+            mineField = (TableLayout)findViewById(R.id.MineField);
+
+            if (bundle == null ) {
+
+                Button imageButton = (Button) findViewById(R.id.btnRestart);
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                                                   @Override
+                                                   public void onClick(View v) {
+                                                       restartButtonClick();
+                                                   }
+                                               }
+                );
+
+                prepareMinesTable();
+                setMines();
+                showGame();
+
+            } else {
+                prepareMinesTable();
+                changeOrientation(bundle);
+                showGame();
+            }
+
+        }else {
+
+            iTotalRows = 8;
+            iTotalCols = 12;
+            iTotalMines = 20;
+
+            setContentView(R.layout.activity_game_landscape);
+            mineField = (TableLayout)findViewById(R.id.MineField);
+
+            if (bundle == null ) {
+
+                prepareMinesTable();
+                setMines();
+                showGame();
+
+            } else {
+                // Probably initialize members with default values for a new instance
+                prepareMinesTable();
+                changeOrientation(bundle);
+                showGame();
+            }
+
+        }
+
+//        if (savedInstanceState == null ) {
+//            // Restore value of members from saved state
+//            setContentView(R.layout.activity_game);
+//        } else {
+//            // Probably initialize members with default values for a new instance
+//            setContentView(R.layout.activity_game_landscape);
+//        }
+
+
+    }
+
+
+    public void changeOrientation(Bundle bundle){
+        //prepareMinesTable();
+        ArrayList<String> al;
+
+
+        for(int i = 0; i < iTotalCols; i++){
+            for (int j = 0; j < iTotalRows; j++){
+                al = bundle.getStringArrayList(i+","+j);
+                if(Boolean.parseBoolean(al.get(0)))
+                  cells[j][i].setbClosed();
+                if(Boolean.parseBoolean(al.get(1)))
+                    cells[j][i].setbFlag();
+                if(Boolean.parseBoolean(al.get(2)))
+                    cells[j][i].setbMine();
+
+                cells[j][i].setiNumofMines(Integer.parseInt(al.get(3)));
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        for (int i = 0; i < iTotalRows; i++ ){
+            for(int j = 0; j < iTotalCols; j++){
+                ArrayList<String> a = new ArrayList<>();
+                int inum = cells[i][j].getiNumMines();
+                a.add( (cells[i][j].getbClosed()) ? "true" : "false");
+                a.add( (cells[i][j].getbFlag()) ? "true" : "false");
+                a.add( (cells[i][j].getbMine()) ? "true" : "false");
+                a.add(inum+"");
+                bundle.putStringArrayList(i+","+j, a);
+            }
+        }
+
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(bundle);
+
+    }
+
+    public void restartButtonClick(){
+        if (Build.VERSION.SDK_INT >= 11) {
+            recreate();
+        } else {
+            Intent intent = getIntent();
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            finish();
+            overridePendingTransition(0, 0);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
+        }
     }
 
     public void prepareMinesTable(){
-
-        // 12*8 cells with 30 mines
-        iTotalRows = 12;
-        iTotalCols = 8;
-        iTotalMines = 20;
 
         //get the array of cells
         cells = new Cell[iTotalRows][iTotalCols];
@@ -158,7 +272,6 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 
     public void showGame()
@@ -204,9 +317,6 @@ public class GameActivity extends AppCompatActivity {
             }
         }
 
-//        if(frmUsr && cells[row][col].getbMine() && !cells[row][col].getbFlag()){
-//            loseGame();
-//        }
         if(!frmUsr && (cells[row][col].getbMine() || cells[row][col].getbFlag())) {
             return;
         }
